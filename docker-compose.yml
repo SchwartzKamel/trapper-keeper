@@ -4,6 +4,6 @@ services:
       context: .
       dockerfile: docker/Dockerfile
     ports:
-      - "8080:80"
+      - "5000:5000"
     volumes:
       - ./conversations:/app/conversations

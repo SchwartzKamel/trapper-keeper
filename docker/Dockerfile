@@ -58,4 +58,4 @@ RUN find /app -type d -exec chmod 755 {} \; && \
     chmod +x /app/trapper-keeper
 
 # Secure entrypoint configuration
-ENTRYPOINT ["./trapper-keeper", "--content-root", "/app", "--urls", "http://0.0.0.0:80"]
+ENTRYPOINT ["./trapper-keeper", "--content-root", "/app", "--urls", "http://0.0.0.0:5000"]

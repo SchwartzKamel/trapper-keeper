@@ -14,12 +14,12 @@ namespace TrapperKeeper.Controllers
             public required string Content { get; set; }
         }
 
-        private readonly JsonConversationStore _store;
+        private readonly IConversationStore _store;
         private readonly BlobServiceClient _blobClient;
 
-        public ChatController(JsonConversationStore store, BlobServiceClient blobClient)
+        public ChatController(IConversationStore conversationStore, BlobServiceClient blobClient)
         {
-            _store = store;
+            _store = conversationStore;
             _blobClient = blobClient;
         }
 
@@ -43,9 +43,21 @@ namespace TrapperKeeper.Controllers
             return Ok(conversation.Messages.Last());
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetConversation(string id)
+        [HttpGet("{id?}")]
+        public async Task<IActionResult> GetConversation(string? id = null)
         {
+            if (string.IsNullOrEmpty(id))
+            {
+                var newConversation = new Conversation();
+                await _store.CreateConversation(newConversation);
+                return Ok(new
+                {
+                    Id = newConversation.Id,
+                    Messages = newConversation.Messages,
+                    SystemMessage = $"SYSTEM> New conversation created: {newConversation.Id}\nType '/exit' to end, '/save' to save"
+                });
+            }
+
             if (!Guid.TryParse(id, out var conversationId))
             {
                 return BadRequest("Invalid conversation ID format");
@@ -54,7 +66,12 @@ namespace TrapperKeeper.Controllers
             var conversation = await _store.GetConversation(conversationId);
             return conversation == null
                 ? NotFound()
-                : Ok(conversation);
+                : Ok(new
+                {
+                    Id = conversation.Id,
+                    Messages = conversation.Messages,
+                    SystemMessage = $"SYSTEM> Resuming conversation: {conversation.Id}"
+                });
         }
     }
 }

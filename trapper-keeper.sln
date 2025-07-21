@@ -4,7 +4,7 @@ VisualStudioVersion = 17.5.2.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "trapper-keeper", "src\TrapperKeeper\trapper-keeper.csproj", "{D43A114E-7F85-80E5-B29A-6373A2490027}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrapperKeeper.Tests", "TrapperKeeper.Tests\TrapperKeeper.Tests.csproj", "{03C34A0D-43CE-42C0-B14B-9EB228D869B6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrapperKeeper.Tests", "tests\TrapperKeeper.Tests\TrapperKeeper.Tests.csproj", "{03C34A0D-43CE-42C0-B14B-9EB228D869B6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
