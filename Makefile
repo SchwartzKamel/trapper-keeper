@@ -5,16 +5,16 @@ clean:
 	dotnet restore src/TrapperKeeper/$(app_name).csproj
 
 build:
-	clean &
+	make clean &
 	dotnet build src/TrapperKeeper/$(app_name).csproj
 
 publish:
-	clean &
+	make clean &
 	dotnet publish src/TrapperKeeper/$(app_name).csproj
 	./bin/Release/net9.0/publish/$(app_name)
 
 run:
-	clean &
+	make clean &
 	dotnet run --project src/TrapperKeeper/$(app_name).csproj
 
 help:
