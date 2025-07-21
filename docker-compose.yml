@@ -1,0 +1,9 @@
+services:
+  trapper-keeper:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    ports:
+      - "8080:80"
+    volumes:
+      - ./conversations:/app/conversations
