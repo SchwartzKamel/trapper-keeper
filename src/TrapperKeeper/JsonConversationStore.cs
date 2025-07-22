@@ -9,6 +9,7 @@ public interface IConversationStore
     Task<Conversation> LoadAsync(Guid id);
     Task<Conversation> GetConversation(Guid id);
     Task UpdateConversation(Conversation conversation);
+    void CreateConversation(object newConversation);
 }
 
 public class JsonConversationStore : IConversationStore
@@ -49,5 +50,10 @@ public class JsonConversationStore : IConversationStore
     public async Task UpdateConversation(Conversation conversation)
     {
         await SaveAsync(conversation);
+    }
+
+    public void CreateConversation(object newConversation)
+    {
+        throw new NotImplementedException();
     }
 }

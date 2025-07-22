@@ -1,3 +1,4 @@
+using Azure.Storage.Blobs;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using TrapperKeeper.Services;
@@ -18,10 +19,19 @@ namespace TrapperKeeper.Controllers
         private readonly IConversationStore _store;
         private readonly IChatCompletionService _aiService;
 
+        public IConversationStore Object1 { get; }
+        public BlobServiceClient Object2 { get; }
+
         public ChatController(IConversationStore conversationStore, IChatCompletionService aiService)
         {
             _store = conversationStore;
             _aiService = aiService;
+        }
+
+        public ChatController(IConversationStore object1, BlobServiceClient object2)
+        {
+            Object1 = object1;
+            Object2 = object2;
         }
 
         [HttpPost]
@@ -79,6 +89,11 @@ namespace TrapperKeeper.Controllers
                 conversation.Messages,
                 $"SYSTEM> Active conversation: {id}"
             ));
+        }
+
+        public async Task GetConversation(string invalidId)
+        {
+            throw new NotImplementedException();
         }
     }
 

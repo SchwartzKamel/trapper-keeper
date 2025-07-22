@@ -1,9 +1,5 @@
 using Azure;
-using Azure.AI.OpenAI;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using TrapperKeeper;
+using OpenAI;
 
 namespace TrapperKeeper.Services
 {

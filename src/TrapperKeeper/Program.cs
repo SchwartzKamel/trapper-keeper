@@ -3,7 +3,6 @@
 
 // Namespace
 using TrapperKeeper;
-using TrapperKeeper.Services;
 
 // Imports
 using Microsoft.Extensions.Configuration.Yaml;
@@ -57,17 +56,17 @@ public static class Program
             builder.Services.AddSingleton(containerClient);
             builder.Services.AddSingleton<IConversationStore, JsonConversationStore>();
             // Configure Azure OpenAI client
-            var openAIClient = new OpenAIClient(
+            var openAIClient = new Azure.AI.OpenAI.OpenAIClient(
                 new Uri(config["azure:endpoint"]),
-                new AzureKeyCredential(config["azure:apiKey"]));
+                new Azure.AzureKeyCredential(config["azure:apiKey"]));
             
             // Register services
             builder.Services.AddSingleton(openAIClient);
-            builder.Services.AddSingleton<IAIModelAdapter>(provider =>
-                new AzureOpenAIAdapter(
-                    provider.GetRequiredService<OpenAIClient>(),
+            builder.Services.AddSingleton<TrapperKeeper.Services.IAIModelAdapter>(provider =>
+                new TrapperKeeper.Services.AzureOpenAIAdapter(
+                    provider.GetRequiredService<Azure.AI.OpenAI.OpenAIClient>(),
                     config["azure:deployment"]));
-            builder.Services.AddScoped<IChatCompletionService, AIChatService>();
+            builder.Services.AddScoped<TrapperKeeper.Services.IChatCompletionService, TrapperKeeper.Services.AIChatService>();
 
             var app = builder.Build();
 
