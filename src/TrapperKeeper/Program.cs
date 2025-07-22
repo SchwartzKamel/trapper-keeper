@@ -3,7 +3,7 @@
 
 // Namespace
 using TrapperKeeper;
-using Microsoft.OpenApi.Models;
+using TrapperKeeper.Services;
 
 // Imports
 using Microsoft.Extensions.Configuration.Yaml;
@@ -20,7 +20,7 @@ public static class Program
         var root = Directory.GetCurrentDirectory();
         var dotenv = Path.Combine(root, ".env");
         DotEnv.Load(dotenv);
-        
+
         // Other code
         var config =
             new ConfigurationBuilder()
@@ -32,22 +32,22 @@ public static class Program
         var deploymentName = config["azure:deployment"] ?? throw new InvalidOperationException("Missing azure:deployment in configuration");
         var apiKey = config["azure:apiKey"] ?? throw new InvalidOperationException("Missing azure:apiKey in configuration");
         var storageConnectionString = config["azure:storage:connectionString"] ?? throw new InvalidOperationException("Missing azure:storage:connectionString in configuration");
-        
+
         AzureOpenAIClient azureClient = new(
             endpoint,
             new AzureKeyCredential(apiKey));
-        
+
         var blobServiceClient = new BlobServiceClient(storageConnectionString);
         var containerClient = blobServiceClient.GetBlobContainerClient("attachments");
         await containerClient.CreateIfNotExistsAsync();
-        
+
         ChatClient chatClient = azureClient.GetChatClient(deploymentName);
 
         if (!args.Contains("--console"))
         {
             // Web Application Setup
             var builder = WebApplication.CreateBuilder(args);
-            
+
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(c =>
@@ -55,7 +55,19 @@ public static class Program
                 c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "Trapper Keeper API", Version = "v1" });
             });
             builder.Services.AddSingleton(containerClient);
-            builder.Services.AddSingleton<JsonConversationStore>();
+            builder.Services.AddSingleton<IConversationStore, JsonConversationStore>();
+            // Configure Azure OpenAI client
+            var openAIClient = new OpenAIClient(
+                new Uri(config["azure:endpoint"]),
+                new AzureKeyCredential(config["azure:apiKey"]));
+            
+            // Register services
+            builder.Services.AddSingleton(openAIClient);
+            builder.Services.AddSingleton<IAIModelAdapter>(provider =>
+                new AzureOpenAIAdapter(
+                    provider.GetRequiredService<OpenAIClient>(),
+                    config["azure:deployment"]));
+            builder.Services.AddScoped<IChatCompletionService, AIChatService>();
 
             var app = builder.Build();
 
@@ -95,7 +107,7 @@ public static class Program
             {
                 Console.WriteLine("What be yer query matey? (Enter 'quit' to exit)");
                 string user_input = Console.ReadLine();
-                
+
                 if (user_input?.ToLower() == "quit")
                     break;
 
@@ -104,10 +116,10 @@ public static class Program
                 var response = completion.Content[0].Text;
                 messages.Add(new AssistantChatMessage(response));
                 conversation.MessageTimestamps[messages.Count - 1] = DateTime.UtcNow;
-                
+
                 conversation.Messages.AddRange(messages);
                 await new JsonConversationStore().SaveAsync(conversation);
-                
+
                 Console.WriteLine("\nConversation History:");
                 foreach (var msg in messages.Where(m => m is UserChatMessage || m is AssistantChatMessage))
                 {

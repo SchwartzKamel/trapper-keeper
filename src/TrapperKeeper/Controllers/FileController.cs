@@ -21,17 +21,19 @@ public class FileController : ControllerBase
     {
         if (file == null || file.Length == 0)
             return BadRequest("Invalid file upload");
-            
+
         if (file.Length > 10_000_000)
             return BadRequest("File size exceeds 10MB limit");
 
         var blobName = $"{sessionId}/{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
-        
-        try {
+
+        try
+        {
             using var stream = file.OpenReadStream();
             await _containerClient.UploadBlobAsync(blobName, stream);
-            
-            var attachment = new FileAttachment {
+
+            var attachment = new FileAttachment
+            {
                 Id = Guid.NewGuid().ToString("N"),
                 FileName = file.FileName,
                 ContentType = file.ContentType,
@@ -46,7 +48,8 @@ public class FileController : ControllerBase
 
             return Created($"/api/attachments/{attachment.Id}", attachment);
         }
-        catch (Exception ex) {
+        catch (Exception ex)
+        {
             return StatusCode(500, $"File upload failed: {ex.Message}");
         }
     }

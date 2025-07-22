@@ -25,9 +25,12 @@ RUN dotnet publish "src/TrapperKeeper/trapper-keeper.csproj" \
     -p:EnableCompressionInSingleFile=true
 
 # Runtime stage with security hardening
-FROM mcr.microsoft.com/dotnet/aspnet:9.0
+FROM mcr.microsoft.com/dotnet/aspnet:9.0-bullseye-slim
 ARG UID=1001
 ARG GID=1001
+
+# Secure entrypoint configuration
+ENTRYPOINT ["./trapper-keeper", "--urls", "http://0.0.0.0:5000"]
 
 # Create non-root user and set permissions
 RUN mkdir -p /app && \
@@ -42,13 +45,15 @@ COPY --chown=appuser:appuser --from=build /app/publish .
 
 # Security configurations
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-    CMD curl -f http://localhost:80/health || exit 1
+    CMD curl -f http://localhost:5000/health || exit 1
+
+RUN mkdir -p /app/conversations && \
+    chown -R appuser:appuser /app/conversations
 
 USER appuser
 
 # Runtime environment settings
 ENV ASPNETCORE_ENVIRONMENT=Production \
-    ASPNETCORE_URLS=http://+:80 \
     DOTNET_NOLOGO=true \
     DOTNET_RUNNING_IN_CONTAINER=true
 
@@ -56,6 +61,3 @@ ENV ASPNETCORE_ENVIRONMENT=Production \
 RUN find /app -type d -exec chmod 755 {} \; && \
     find /app -type f -exec chmod 644 {} \; && \
     chmod +x /app/trapper-keeper
-
-# Secure entrypoint configuration
-ENTRYPOINT ["./trapper-keeper", "--content-root", "/app", "--urls", "http://0.0.0.0:5000"]

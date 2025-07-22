@@ -1,5 +1,3 @@
-using OpenAI.Chat;
-
 namespace TrapperKeeper;
 
 public class Conversation

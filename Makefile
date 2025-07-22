@@ -32,6 +32,9 @@ compose-down:
 
 compose-reload: compose-down compose-up
 
+report:
+	dotnet format --report -v d
+
 help:
 	@echo "build    - Build project and tests"
 	@echo "test     - Run unit tests"

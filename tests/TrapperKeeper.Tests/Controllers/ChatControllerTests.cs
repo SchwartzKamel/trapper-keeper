@@ -1,15 +1,8 @@
-using System;
-using System.Threading.Tasks;
 using Azure.Storage.Blobs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
 using Moq;
-using TrapperKeeper;
 using TrapperKeeper.Controllers;
-using Xunit;
-using Moq.Protected;
-using Xunit.Sdk;
-using Xunit.Abstractions;
 
 namespace TrapperKeeper.Tests.Controllers
 {
@@ -24,7 +17,7 @@ namespace TrapperKeeper.Tests.Controllers
         {
             _mockEnv = new Mock<IHostEnvironment>();
             _mockEnv.Setup(e => e.ContentRootPath).Returns("test/path");
-            
+
             _mockStore = new Mock<IConversationStore>();
             _mockBlobService = new Mock<BlobServiceClient>();
             _controller = new ChatController(_mockStore.Object, _mockBlobService.Object);
