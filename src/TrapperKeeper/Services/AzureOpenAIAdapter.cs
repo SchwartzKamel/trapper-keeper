@@ -1,5 +1,5 @@
 using Azure;
-using OpenAI
+using OpenAI;
 
 namespace TrapperKeeper.Services
 {
